@@ -14,6 +14,11 @@ The application allows users to:
 ### Example Spreadsheet
 
 The example spreadsheet can be found [here](https://docs.google.com/spreadsheets/d/1AOoxccKuFSSjG7LkAamfs6BDTG8rOTFu6MnCgNamRQI/edit?usp=sharing).
+Question example:
+<img width="713" alt="image" src="https://github.com/viniciusnunest/google-apps-scripts/assets/104783995/14c6c4c4-e238-4c06-a00a-d8cf55244d3a">
+Answers example: 
+<img width="311" alt="image" src="https://github.com/viniciusnunest/google-apps-scripts/assets/104783995/358c22b5-9166-48c7-bc8e-3a72f7e52f08">
+
 
 ### Link to the Application
 

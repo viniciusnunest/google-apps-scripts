@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      body {
+        font-family: 'Comic Sans MS', sans-serif;
+        background-color: #003140;
+        padding: 20px;
+        text-align: center; 
+      }
+      #questions-paper {
+        background-color: #fff;
+        padding: 20px;
+        border: 1px solid #006400;
+        display: inline-block;
+        width: 80%;
+      }
+      h1 {
+        margin-bottom: 20px;
+        color: #0ee06e;
+      }
+      .question {
+        margin-bottom: 40px;
+      }
+      .question label {
+        display: block;
+        font-weight: bold;
+      }
+      .slider-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+      .slider {
+        width: 80%;
+        margin-top: 10px;
+        background: #fff;
+        border: 1px solid #006400;
+      }
+      .slider-labels {
+        display: flex;
+        justify-content: space-between;
+        width: 80%;
+        font-size: 12px;
+        color: #888;
+      }
+      .buttons {
+        display: flex;
+        justify-content: center;
+        margin-top: 10px;
+        margin-bottom: 10px;
+      }
+      .buttons #send-response {
+        padding: 15px 30px;
+        font-size: 16px;
+        border: none;
+        background-color: #0ee06e;
+        color: #fff;
+        cursor: pointer;
+        border-radius: 5px;
+        transition: all 0.3s ease;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        display: inline-block;
+        max-width: 60%;
+      }
+
+      .buttons #send-response:hover {
+        background-color: #06c059;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Weekly Climate Survey</h1>
+    <div id="questions-paper">
+      <div id="questions-container"></div>
+      <div class="buttons">
+        <button id="send-response" type="button" onclick="submitForm()">Submit Responses</button>
+      </div>
+    </div>
+    <p style="font-size: 14px; color: #0ee06e;"><i class="fas fa-exclamation-circle"></i> This survey is completely anonymous.</p>
+    <div id="thank-you" style="display: none; text-align: center;">
+      <img src="https://media.tenor.com/dPQcdjV6BnYAAAAC/omg-oh-my-god.gif" alt="Thank You">
+      <h2 id="thank-you-text">Thank you for your participation!</h2>
+    </div>
+    <footer style="margin-top: 20px;">
+      <p>Developed by <a href="https://github.com/viniciusnunest" target="_blank" style="color: #0ee06e;">Vinicius Nunes</a></p>
+    </footer>
+    <script>
+      var currentWeek;
+      function showThankYou() {
+        document.getElementById('questions-paper').style.display = 'none';
+        document.getElementById('thank-you').style.display = 'block';
+      }
+
+      function updateQuestions(response) {
+        console.log(response);
+        var week = response.week;
+        var data = response.data;
+        document.querySelector('h1').textContent = "Weekly Climate Survey " + week;
+
+        var questionsContainer = document.getElementById('questions-container');
+        questionsContainer.innerHTML = '';
+
+        for (var i = 0; i < data.length; i++) {
+          var questionDiv = document.createElement('div');
+          questionDiv.className = 'question';
+          questionDiv.innerHTML = `
+            <label>${data[i][0]}</label>
+            <div class="slider-container">
+              <div class="slider-labels">
+                <span>${data[i][1]}</span>
+                <span>${data[i][2]}</span>
+                <span>${data[i][3]}</span>
+                <span>${data[i][4]}</span>
+                <span>${data[i][5]}</span>
+              </div>
+               <input class="slider" type="range" min="1" max="5" step="1" name="question${i}">
+          `;
+          questionsContainer.appendChild(questionDiv);
+        }
+      }
+
+      function checkIfAlreadyResponded() {
+        google.script.run.withSuccessHandler(function(response) {
+          var week = response.week;
+          if (localStorage.getItem('responded-' + week) === 'true') {
+            showThankYou();
+            return;
+          }
+          updateQuestions(response);
+        }).getWeekAndQuestionsData();
+      }
+
+      function submitForm() {
+        var questions = document.getElementsByClassName('question');
+        var answers = [];
+        for (var i = 0; i < questions.length; i++) {
+          var questionText = questions[i].querySelector('label').textContent;
+          var slider = questions[i].querySelector('.slider');
+          var sliderValue = slider.value;
+          var sliderLabels = questions[i].querySelectorAll('.slider-labels span');
+          var answerText = sliderLabels[sliderValue - 1].textContent; 
+          answers.push([questionText, answerText]); 
+        }
+
+        google.script.run.addAnswersToSheet(answers);
+        localStorage.setItem('responded-' + currentWeek, 'true');
+        showThankYou();
+      }
+
+      document.addEventListener('DOMContentLoaded', checkIfAlreadyResponded);
+    </script>
+  </body>
+</html>
